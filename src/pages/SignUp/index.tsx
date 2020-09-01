@@ -1,9 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect, useState, useRef, useCallback,
+} from 'react';
 import {
   Image, KeyboardAvoidingView, Platform, View, Keyboard, ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
+import { Form } from '@unform/mobile';
+import { FormHandles } from '@unform/core';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -18,9 +22,14 @@ import {
 } from './styles';
 
 const SignUp: React.FC = () => {
+  const formRef = useRef<FormHandles>(null);
   const navigation = useNavigation();
 
   const [isVisibleBackToSign, setIsVisibleBackToSign] = useState(true);
+
+  const handleSubmit = useCallback((data: object) => {
+    console.log(data);
+  }, []);
 
   useEffect(() => {
     const keyboardShow = Keyboard.addListener('keyboardDidShow',
@@ -36,35 +45,37 @@ const SignUp: React.FC = () => {
   }, []);
 
   return (
-    <ScrollView
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{ flex: 1 }}
-    >
+    <>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         enabled
       >
-        <Container>
-          <Image source={logoImg} />
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ flex: 1 }}
+        >
+          <Container>
+            <Image source={logoImg} />
 
-          {/* View - Permitir animação */}
-          <View>
-            <Title>Crie sua conta</Title>
-          </View>
+            {/* View - Permitir animação */}
+            <View>
+              <Title>Crie sua conta</Title>
+            </View>
 
-          <Input name="name" icon="user" placeholder="Nome" />
+            <Form ref={formRef} onSubmit={handleSubmit}>
+              <Input name="name" icon="user" placeholder="Nome" />
+              <Input name="email" icon="mail" placeholder="E-mail" />
+              <Input name="password" icon="lock" placeholder="Senha" />
+            </Form>
 
-          <Input name="email" icon="mail" placeholder="E-mail" />
-
-          <Input name="password" icon="lock" placeholder="Senha" />
-
-          <Button
-            onPress={() => { console.log(''); }}
-          >
-            Criar conta
-          </Button>
-        </Container>
+            <Button
+              onPress={() => formRef.current?.submitForm()}
+            >
+              Criar conta
+            </Button>
+          </Container>
+        </ScrollView>
       </KeyboardAvoidingView>
 
       {isVisibleBackToSign && (
@@ -75,7 +86,7 @@ const SignUp: React.FC = () => {
           </BackToSignText>
         </BackToSign>
       )}
-    </ScrollView>
+    </>
   );
 };
 

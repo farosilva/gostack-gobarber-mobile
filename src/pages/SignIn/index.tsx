@@ -1,9 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect, useState, useCallback, useRef,
+} from 'react';
 import {
   Image, KeyboardAvoidingView, Platform, View, Keyboard, ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
+import { Form } from '@unform/mobile';
+import { FormHandles } from '@unform/core';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -20,7 +24,12 @@ import {
 } from './styles';
 
 const SignIn: React.FC = () => {
+  const formRef = useRef<FormHandles>(null);
   const navigation = useNavigation();
+
+  const handleSubmit = useCallback((data: object) => {
+    console.log(data);
+  }, []);
 
   const [isVisibleCreateAccountButton, setIsVisibleCreateAccountButton] = useState(true);
 
@@ -38,36 +47,38 @@ const SignIn: React.FC = () => {
   }, []);
 
   return (
-    <ScrollView
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{ flex: 1 }}
-    >
+    <>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         enabled
       >
-        <Container>
-          <Image source={logoImg} />
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ flex: 1 }}
+        >
+          <Container>
+            <Image source={logoImg} />
 
-          {/* View - Permitir animação */}
-          <View>
-            <Title>Faça seu logon</Title>
-          </View>
+            {/* View - Permitir animação */}
+            <View>
+              <Title>Faça seu logon</Title>
+            </View>
 
-          <Input name="email" icon="mail" placeholder="E-mail" />
-          <Input name="password" icon="lock" placeholder="Senha" />
+            <Form ref={formRef} onSubmit={handleSubmit}>
+              <Input name="email" icon="mail" placeholder="E-mail" />
+              <Input name="password" icon="lock" placeholder="Senha" />
+            </Form>
 
-          <Button
-            onPress={() => { console.log(''); }}
-          >
-            Entrar
-          </Button>
+            <Button onPress={() => formRef.current?.submitForm()}>
+              Entrar
+            </Button>
 
-          <ForgotPassword onPress={() => { console.log(''); }}>
-            <ForgotPasswordText>Esqueceu sua senha?</ForgotPasswordText>
-          </ForgotPassword>
-        </Container>
+            <ForgotPassword onPress={() => { console.log(''); }}>
+              <ForgotPasswordText>Esqueceu sua senha?</ForgotPasswordText>
+            </ForgotPassword>
+          </Container>
+        </ScrollView>
       </KeyboardAvoidingView>
 
       {isVisibleCreateAccountButton && (
@@ -78,7 +89,7 @@ const SignIn: React.FC = () => {
           </CreateAccountButtonText>
         </CreateAccountButton>
       )}
-    </ScrollView>
+    </>
   );
 };
 
