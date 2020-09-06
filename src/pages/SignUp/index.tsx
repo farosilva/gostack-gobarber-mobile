@@ -1,9 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  useCallback,
-} from 'react';
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -12,23 +7,28 @@ import {
   Keyboard,
   ScrollView,
   TextInput,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
-import { useNavigation } from '@react-navigation/native';
-import { Form } from '@unform/mobile';
-import { FormHandles } from '@unform/core';
+  Alert,
+} from "react-native";
+import Icon from "react-native-vector-icons/Feather";
+import { useNavigation } from "@react-navigation/native";
+import { Form } from "@unform/mobile";
+import { FormHandles } from "@unform/core";
+import * as Yup from "yup";
 
-import Input from '../../components/Input';
-import Button from '../../components/Button';
+import Input from "../../components/Input";
+import Button from "../../components/Button";
 
-import logoImg from '../../assets/logo.png';
+import getValidationErrors from "../../utils/getValidationErrors";
 
-import {
-  Container,
-  Title,
-  BackToSign,
-  BackToSignText,
-} from './styles';
+import logoImg from "../../assets/logo.png";
+
+import { Container, Title, BackToSign, BackToSignText } from "./styles";
+
+interface SignUpFormData {
+  name: string;
+  email: string;
+  password: string;
+}
 
 const SignUp: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
@@ -40,16 +40,49 @@ const SignUp: React.FC = () => {
 
   const [isVisibleBackToSign, setIsVisibleBackToSign] = useState(true);
 
-  const handleSubmit = useCallback((data: object) => {
-    console.log(data);
+  const handleSignUp = useCallback(async (data: SignUpFormData) => {
+    try {
+      formRef.current?.setErrors({});
+
+      const schema = Yup.object().shape({
+        name: Yup.string().required("Nome obrigatório"),
+        email: Yup.string()
+          .required("E-mail obrigatório")
+          .email("E-mail inválido"),
+        password: Yup.string().min(6, "No mínimo 6 digítos"),
+      });
+
+      await schema.validate(data, {
+        abortEarly: false,
+      });
+
+      // await api.post('/users', data);
+
+      // history.push('/');
+    } catch (err) {
+      if (err instanceof Yup.ValidationError) {
+        const errors = getValidationErrors(err);
+
+        formRef.current?.setErrors(errors);
+
+        return;
+      }
+
+      Alert.alert(
+        "Erro no cadastro",
+        "Ocorreu um erro ao fazer o cadastro, tente novamente"
+      );
+    }
   }, []);
 
   useEffect(() => {
-    const keyboardShow = Keyboard.addListener('keyboardDidShow',
-      () => setIsVisibleBackToSign(false));
+    const keyboardShow = Keyboard.addListener("keyboardDidShow", () =>
+      setIsVisibleBackToSign(false)
+    );
 
-    const keyboardHide = Keyboard.addListener('keyboardDidHide',
-      () => setIsVisibleBackToSign(true));
+    const keyboardHide = Keyboard.addListener("keyboardDidHide", () =>
+      setIsVisibleBackToSign(true)
+    );
 
     return () => {
       keyboardShow.remove();
@@ -61,7 +94,7 @@ const SignUp: React.FC = () => {
     <>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         enabled
       >
         <ScrollView
@@ -76,7 +109,7 @@ const SignUp: React.FC = () => {
               <Title>Crie sua conta</Title>
             </View>
 
-            <Form ref={formRef} onSubmit={handleSubmit}>
+            <Form ref={formRef} onSubmit={handleSignUp}>
               <Input
                 name="name"
                 icon="user"
@@ -114,12 +147,9 @@ const SignUp: React.FC = () => {
                   formRef.current?.submitForm();
                 }}
               />
-
             </Form>
 
-            <Button
-              onPress={() => formRef.current?.submitForm()}
-            >
+            <Button onPress={() => formRef.current?.submitForm()}>
               Criar conta
             </Button>
           </Container>
@@ -127,11 +157,9 @@ const SignUp: React.FC = () => {
       </KeyboardAvoidingView>
 
       {isVisibleBackToSign && (
-        <BackToSign onPress={() => navigation.navigate('SignIn')}>
+        <BackToSign onPress={() => navigation.navigate("SignIn")}>
           <Icon name="arrow-left" size={20} color="#fff" />
-          <BackToSignText>
-            Voltar para logon
-          </BackToSignText>
+          <BackToSignText>Voltar para logon</BackToSignText>
         </BackToSign>
       )}
     </>
