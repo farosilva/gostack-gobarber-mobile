@@ -1,8 +1,13 @@
-import React, { useEffect, useRef } from 'react';
-import { TextInputProps } from 'react-native';
-import { useField } from '@unform/core';
+import React, {
+  useEffect,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
+import { TextInputProps } from "react-native";
+import { useField } from "@unform/core";
 
-import { Container, TextInput, Icon } from './styles';
+import { Container, TextInput, Icon } from "./styles";
 
 interface InputProps extends TextInputProps {
   name: string;
@@ -13,26 +18,38 @@ interface InputValueReference {
   value: string;
 }
 
-const Input: React.FC<InputProps> = ({ name, icon, ...rest }) => {
+interface InputRef {
+  focus(): void;
+}
+
+// Using RefForwarningComponent porque precisamos obter a ref do elemento
+const Input: React.RefForwardingComponent<InputRef, InputProps> = (
+  { name, icon, ...rest },
+  ref
+) => {
   const inputElementRef = useRef<any>(null);
 
-  const {
-    registerField, defaultValue = '', fieldName, error,
-  } = useField(name);
+  const { registerField, defaultValue = "", fieldName, error } = useField(name);
 
   const inputValueRef = useRef<InputValueReference>({ value: defaultValue });
+
+  useImperativeHandle(ref, () => ({
+    focus() {
+      inputElementRef.current.focus();
+    },
+  }));
 
   useEffect(() => {
     registerField({
       name: fieldName,
       ref: inputValueRef.current,
-      path: 'value',
+      path: "value",
       setValue(ref: any, value: string) {
         inputValueRef.current.value = value;
         inputElementRef.current.setNativeProps({ text: value });
       },
       clearValue() {
-        inputValueRef.current.value = '';
+        inputValueRef.current.value = "";
         inputElementRef.current.clear();
       },
     });
@@ -56,4 +73,4 @@ const Input: React.FC<InputProps> = ({ name, icon, ...rest }) => {
   );
 };
 
-export default Input;
+export default forwardRef(Input);

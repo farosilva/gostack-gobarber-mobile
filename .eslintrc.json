@@ -5,7 +5,9 @@
   "extends": [
       "plugin:@typescript-eslint/recommended",
       "plugin:react/recommended",
-      "airbnb"
+      "airbnb",
+      "prettier/@typescript-eslint",
+      "plugin:prettier/recommended"
   ],
   "globals": {
       "__DEV__": "readonly",
@@ -23,9 +25,13 @@
   "plugins": [
       "react",
       "react-hooks",
-    "@typescript-eslint"
+      "@typescript-eslint",
+      "prettier"
   ],
   "rules": {
+    "prettier/prettier": "error",
+    "@typescript-eslint/ban-types": "off",
+    "no-unused-expressions": "off",
     "react/prop-types": "off",
     "react/jsx-props-no-spreading": "off",
     "react-hooks/rules-of-hooks": "error",
