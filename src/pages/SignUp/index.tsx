@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   Image,
   KeyboardAvoidingView,
@@ -8,22 +8,23 @@ import {
   ScrollView,
   TextInput,
   Alert,
-} from "react-native";
-import Icon from "react-native-vector-icons/Feather";
-import { useNavigation } from "@react-navigation/native";
-import { Form } from "@unform/mobile";
-import { FormHandles } from "@unform/core";
-import * as Yup from "yup";
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
+import { useNavigation } from '@react-navigation/native';
+import { Form } from '@unform/mobile';
+import { FormHandles } from '@unform/core';
+import * as Yup from 'yup';
 
-import Input from "../../components/Input";
-import Button from "../../components/Button";
+import Input from '../../components/Input';
+import Button from '../../components/Button';
 
-import getValidationErrors from "../../utils/getValidationErrors";
-import api from "../../services/api";
+import getValidationErrors from '../../utils/getValidationErrors';
+import api from '../../services/api';
 
-import logoImg from "../../assets/logo.png";
+import logoImg from '../../assets/logo.png';
 
-import { Container, Title, BackToSign, BackToSignText } from "./styles";
+import { Container, Title, BackToSign, BackToSignText } from './styles';
+import Loading from '../../components/Loading';
 
 interface SignUpFormData {
   name: string;
@@ -40,33 +41,37 @@ const SignUp: React.FC = () => {
   const navigation = useNavigation();
 
   const [isVisibleBackToSign, setIsVisibleBackToSign] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleSignUp = useCallback(
     async (data: SignUpFormData) => {
+      setLoading(true);
       try {
         formRef.current?.setErrors({});
 
         const schema = Yup.object().shape({
-          name: Yup.string().required("Nome obrigatório"),
+          name: Yup.string().required('Nome obrigatório'),
           email: Yup.string()
-            .required("E-mail obrigatório")
-            .email("E-mail inválido"),
-          password: Yup.string().min(6, "No mínimo 6 digítos"),
+            .required('E-mail obrigatório')
+            .email('E-mail inválido'),
+          password: Yup.string().min(6, 'No mínimo 6 digítos'),
         });
 
         await schema.validate(data, {
           abortEarly: false,
         });
 
-        await api.post("/users", data);
+        await api.post('/users', data);
 
         Alert.alert(
-          "Cadastro realizado com sucesso!",
-          "Você já pode realizar logon na aplicação."
+          'Cadastro realizado com sucesso!',
+          'Você já pode realizar logon na aplicação.',
         );
 
-        navigation.navigate("SignIn");
+        setLoading(false);
+        navigation.navigate('SignIn');
       } catch (err) {
+        setLoading(false);
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err);
 
@@ -76,21 +81,21 @@ const SignUp: React.FC = () => {
         }
 
         Alert.alert(
-          "Erro no cadastro",
-          "Ocorreu um erro ao fazer o cadastro, tente novamente"
+          'Erro no cadastro',
+          'Ocorreu um erro ao fazer o cadastro, tente novamente',
         );
       }
     },
-    [navigation]
+    [navigation],
   );
 
   useEffect(() => {
-    const keyboardShow = Keyboard.addListener("keyboardDidShow", () =>
-      setIsVisibleBackToSign(false)
+    const keyboardShow = Keyboard.addListener('keyboardDidShow', () =>
+      setIsVisibleBackToSign(false),
     );
 
-    const keyboardHide = Keyboard.addListener("keyboardDidHide", () =>
-      setIsVisibleBackToSign(true)
+    const keyboardHide = Keyboard.addListener('keyboardDidHide', () =>
+      setIsVisibleBackToSign(true),
     );
 
     return () => {
@@ -103,7 +108,7 @@ const SignUp: React.FC = () => {
     <>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         enabled
       >
         <ScrollView
@@ -158,15 +163,19 @@ const SignUp: React.FC = () => {
               />
             </Form>
 
-            <Button onPress={() => formRef.current?.submitForm()}>
-              Criar conta
-            </Button>
+            {loading ? (
+              <Loading />
+            ) : (
+              <Button onPress={() => formRef.current?.submitForm()}>
+                Criar conta
+              </Button>
+            )}
           </Container>
         </ScrollView>
       </KeyboardAvoidingView>
 
       {isVisibleBackToSign && (
-        <BackToSign onPress={() => navigation.navigate("SignIn")}>
+        <BackToSign onPress={() => navigation.navigate('SignIn')}>
           <Icon name="arrow-left" size={20} color="#fff" />
           <BackToSignText>Voltar para logon</BackToSignText>
         </BackToSign>

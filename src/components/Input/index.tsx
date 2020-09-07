@@ -5,12 +5,12 @@ import React, {
   forwardRef,
   useState,
   useCallback,
-} from "react";
-import { TextInputProps, Alert } from "react-native";
-import { useField } from "@unform/core";
-import Icon from "react-native-vector-icons/Feather";
+} from 'react';
+import { TextInputProps, Alert } from 'react-native';
+import { useField } from '@unform/core';
+import Icon from 'react-native-vector-icons/Feather';
 
-import { Container, TextInput } from "./styles";
+import { Container, TextInput } from './styles';
 
 interface InputProps extends TextInputProps {
   name: string;
@@ -28,11 +28,11 @@ interface InputRef {
 // Using RefForwarningComponent porque precisamos obter a ref do elemento
 const Input: React.RefForwardingComponent<InputRef, InputProps> = (
   { name, icon, ...rest },
-  ref
+  ref,
 ) => {
   const inputElementRef = useRef<any>(null);
 
-  const { registerField, defaultValue = "", fieldName, error } = useField(name);
+  const { registerField, defaultValue = '', fieldName, error } = useField(name);
 
   const inputValueRef = useRef<InputValueReference>({ value: defaultValue });
 
@@ -58,13 +58,13 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
     registerField({
       name: fieldName,
       ref: inputValueRef.current,
-      path: "value",
+      path: 'value',
       setValue(ref: any, value: string) {
         inputValueRef.current.value = value;
         inputElementRef.current.setNativeProps({ text: value });
       },
       clearValue() {
-        inputValueRef.current.value = "";
+        inputValueRef.current.value = '';
         inputElementRef.current.clear();
       },
     });
@@ -86,7 +86,7 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
         defaultValue={defaultValue}
         onFocus={handleInputFocus}
         onBlur={handleInputBlur}
-        onChangeText={(value) => {
+        onChangeText={value => {
           inputValueRef.current.value = value;
         }}
         {...rest}
@@ -98,7 +98,7 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
           size={20}
           color="#c53030"
           onPress={() => {
-            Alert.alert("Entrada inválida", error);
+            Alert.alert('Entrada inválida', error);
           }}
         />
       )}

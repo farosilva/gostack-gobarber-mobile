@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Image,
   KeyboardAvoidingView,
@@ -8,20 +8,20 @@ import {
   ScrollView,
   TextInput,
   Alert,
-} from "react-native";
-import Icon from "react-native-vector-icons/Feather";
-import { useNavigation } from "@react-navigation/native";
-import { Form } from "@unform/mobile";
-import { FormHandles } from "@unform/core";
-import * as Yup from "yup";
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
+import { useNavigation } from '@react-navigation/native';
+import { Form } from '@unform/mobile';
+import { FormHandles } from '@unform/core';
+import * as Yup from 'yup';
 
-import Input from "../../components/Input";
-import Button from "../../components/Button";
+import Input from '../../components/Input';
+import Button from '../../components/Button';
 
-import getValidationErrors from "../../utils/getValidationErrors";
-import { useAuth } from "../../hooks/auth";
+import getValidationErrors from '../../utils/getValidationErrors';
+import { useAuth } from '../../hooks/auth';
 
-import logoImg from "../../assets/logo.png";
+import logoImg from '../../assets/logo.png';
 
 import {
   Container,
@@ -30,7 +30,8 @@ import {
   ForgotPasswordText,
   CreateAccountButton,
   CreateAccountButtonText,
-} from "./styles";
+} from './styles';
+import Loading from '../../components/Loading';
 
 interface SignInFormData {
   email: string;
@@ -42,59 +43,66 @@ const SignIn: React.FC = () => {
 
   const passwordInputRef = useRef<TextInput>(null);
 
-  const navigation = useNavigation();
-
-  const { signIn, user } = useAuth();
-
-  console.log(user);
-
-  const handleSignIn = useCallback(async (data: SignInFormData) => {
-    try {
-      formRef.current?.setErrors({});
-
-      const schema = Yup.object().shape({
-        email: Yup.string()
-          .required("E-mail obrigatório")
-          .email("E-mail inválido"),
-        password: Yup.string().required("Senha obrigatória"),
-      });
-
-      await schema.validate(data, {
-        abortEarly: false,
-      });
-
-      await signIn({
-        email: data.email,
-        password: data.password,
-      });
-    } catch (err) {
-      if (err instanceof Yup.ValidationError) {
-        const errors = getValidationErrors(err);
-
-        formRef.current?.setErrors(errors);
-
-        return;
-      }
-
-      Alert.alert(
-        "Erro na autenticação",
-        "Ocorreu um erro ao fazer login, cheque suas credenciais"
-      );
-    }
-  }, []);
-
   const [
     isVisibleCreateAccountButton,
     setIsVisibleCreateAccountButton,
   ] = useState(true);
 
+  const [loading, setLoading] = useState(false);
+
+  const navigation = useNavigation();
+
+  const { signIn } = useAuth();
+
+  const handleSignIn = useCallback(
+    async (data: SignInFormData) => {
+      setLoading(true);
+      try {
+        formRef.current?.setErrors({});
+
+        const schema = Yup.object().shape({
+          email: Yup.string()
+            .required('E-mail obrigatório')
+            .email('E-mail inválido'),
+          password: Yup.string().required('Senha obrigatória'),
+        });
+
+        await schema.validate(data, {
+          abortEarly: false,
+        });
+
+        await signIn({
+          email: data.email,
+          password: data.password,
+        });
+
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err);
+
+          formRef.current?.setErrors(errors);
+
+          return;
+        }
+
+        Alert.alert(
+          'Erro na autenticação',
+          'Ocorreu um erro ao fazer login, cheque suas credenciais',
+        );
+      }
+    },
+    [signIn, setLoading],
+  );
+
   useEffect(() => {
-    const keyboardShow = Keyboard.addListener("keyboardDidShow", () =>
-      setIsVisibleCreateAccountButton(false)
+    const keyboardShow = Keyboard.addListener('keyboardDidShow', () =>
+      setIsVisibleCreateAccountButton(false),
     );
 
-    const keyboardHide = Keyboard.addListener("keyboardDidHide", () =>
-      setIsVisibleCreateAccountButton(true)
+    const keyboardHide = Keyboard.addListener('keyboardDidHide', () =>
+      setIsVisibleCreateAccountButton(true),
     );
 
     return () => {
@@ -107,7 +115,7 @@ const SignIn: React.FC = () => {
     <>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         enabled
       >
         <ScrollView
@@ -117,7 +125,6 @@ const SignIn: React.FC = () => {
           <Container>
             <Image source={logoImg} />
 
-            {/* View - Permitir animação */}
             <View>
               <Title>Faça seu logon</Title>
             </View>
@@ -148,15 +155,15 @@ const SignIn: React.FC = () => {
               />
             </Form>
 
-            <Button onPress={() => formRef.current?.submitForm()}>
-              Entrar
-            </Button>
+            {loading ? (
+              <Loading />
+            ) : (
+              <Button onPress={() => formRef.current?.submitForm()}>
+                Entrar
+              </Button>
+            )}
 
-            <ForgotPassword
-              onPress={() => {
-                console.log("");
-              }}
-            >
+            <ForgotPassword>
               <ForgotPasswordText>Esqueceu sua senha?</ForgotPasswordText>
             </ForgotPassword>
           </Container>
@@ -164,7 +171,7 @@ const SignIn: React.FC = () => {
       </KeyboardAvoidingView>
 
       {isVisibleCreateAccountButton && (
-        <CreateAccountButton onPress={() => navigation.navigate("SignUp")}>
+        <CreateAccountButton onPress={() => navigation.navigate('SignUp')}>
           <Icon name="log-in" size={20} color="#ff9000" />
           <CreateAccountButtonText>Criar uma conta</CreateAccountButtonText>
         </CreateAccountButton>

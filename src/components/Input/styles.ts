@@ -1,4 +1,4 @@
-import styled, { css } from "styled-components/native";
+import styled, { css } from 'styled-components/native';
 
 interface ContainerProps {
   isFocused: boolean;
@@ -22,13 +22,13 @@ export const Container = styled.View<ContainerProps>`
   flex-direction: row;
   align-items: center;
 
-  ${(props) =>
+  ${props =>
     props.isErrored &&
     css`
       border-color: #c53030;
     `}
 
-  ${(props) =>
+  ${props =>
     props.isFocused &&
     css`
       border-color: #ff9000;
@@ -39,10 +39,10 @@ export const TextInput = styled.TextInput<TextInputProps>`
   flex: 1;
   color: #fff;
   font-size: 16px;
-  font-family: "RobotoSlab-Regular";
+  font-family: 'RobotoSlab-Regular';
   margin-left: 16px;
 
-  ${(props) =>
+  ${props =>
     props.isErrored &&
     css`
       margin: 0 16px;
