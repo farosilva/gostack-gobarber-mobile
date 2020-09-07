@@ -6,10 +6,11 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import { TextInputProps } from "react-native";
+import { TextInputProps, Alert } from "react-native";
 import { useField } from "@unform/core";
+import Icon from "react-native-vector-icons/Feather";
 
-import { Container, TextInput, Icon } from "./styles";
+import { Container, TextInput } from "./styles";
 
 interface InputProps extends TextInputProps {
   name: string;
@@ -79,6 +80,7 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
 
       <TextInput
         ref={inputElementRef}
+        isErrored={!!error}
         keyboardAppearance="dark"
         placeholderTextColor="#666360"
         defaultValue={defaultValue}
@@ -89,6 +91,17 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
         }}
         {...rest}
       />
+
+      {error && (
+        <Icon
+          name="alert-circle"
+          size={20}
+          color="#c53030"
+          onPress={() => {
+            Alert.alert("Entrada inválida", error);
+          }}
+        />
+      )}
     </Container>
   );
 };
